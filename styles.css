@@ -134,3 +134,18 @@ body {
   font-weight: 600;
   margin-bottom: 16px;
 }
+.progress-container {
+      width: 100%;
+      background-color: #e0e0e0;
+      border-radius: 8px;
+      height: 10px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #65c7c3 !important; /* !important guarantees override */
+      transition: width 0.3s ease;
+    }
