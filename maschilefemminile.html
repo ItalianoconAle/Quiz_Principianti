@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz - Maschile o Femminile?</title>
+  <title>Maschile o Femminile?</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -119,6 +119,7 @@
   const scoreText = document.getElementById("score-text");
   const feedbackMsg = document.getElementById("feedback-msg");
   const instructionsBox = document.querySelector(".instructions-box");
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbziDNyPfIGomIrM9Hgg5FZ6TPd1L50Wkm3VgPyXXE4GF9dHTBkz2Lw4WQh_jo-3JLFOsQ/exec";
 
   function loadQuestion() {
     attempts = 0;
@@ -197,11 +198,32 @@
 
 function showResults() {
     quizEl.style.display = "none";
-    if (instructionsBox) instructionsBox.style.display = "none"; // Hides instructions
+    if (instructionsBox) instructionsBox.style.display = "none";
     resultContainer.style.display = "block";
     
     const percentage = Math.round((score / quizData.length) * 100);
     scoreText.textContent = `Punteggio finale: ${score} su ${quizData.length} (${percentage}%)`;
+
+    // Send data to Google Sheet silently in the background
+    if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== "AKfycbziDNyPfIGomIrM9Hgg5FZ6TPd1L50Wkm3VgPyXXE4GF9dHTBkz2Lw4WQh_jo-3JLFOsQ") {
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors", // Bypasses CORS restrictions
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          quizTitle: "Pronomi Doppi",
+          score: score,
+          total: quizData.length,
+          percentage: percentage
+        })
+      }).catch(err => console.error("Error logging score:", err));
+    }
+  body: JSON.stringify({
+  quizTitle: "Maschile o Femminile?", // <-- Name for Quiz 1
+  score: score,
+  total: quizData.length,
+  percentage: percentage
+})
   }
 
   // Initialize the quiz
