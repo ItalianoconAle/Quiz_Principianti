@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz - Maschile o Femminile?</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="quiz-container">
+  <div class="instructions-box">
+    <h3>Istruzioni</h3>
+    <p>Are the following nouns masculine or feminine?</p>
+  </div>
+
+  <div id="quiz">
+    <div id="question" class="question">Caricamento...</div>
+    <div id="feedback-msg" class="feedback-msg" style="display: none;"></div>
+    <div id="options" class="options-container"></div>
+    <button id="next-btn" class="btn" style="display: none;">Prossima domanda</button>
+  </div>
+  
+  <div id="result-container" style="display: none;">
+    <h2>Quiz Completato!</h2>
+    <p id="score-text"></p>
+    <button onclick="location.reload()" class="btn">Riprova</button>
+  </div>
+</div>
+
+<script>
+  const quizData = [
+    {
+      question: "cipolla",
+      options: ["maschile", "femminile"],
+      answer: 1
+    },
+      {
+      question: "orologio",
+      options: ["maschile", "femminile"],
+      answer: 0
+    },
+      {
+      question: "spazzolino",
+      options: ["maschile", "femminile"],
+      answer: 0
+    },
+      {
+      question: "alba",
+      options: ["maschile", "femminile"],
+      answer: 1
+    },
+      {
+      question: "albero",
+      options: ["maschile", "femminile"],
+      answer: 0
+    },
+      {
+      question: "televisione",
+      options: ["maschile", "femminile"],
+      answer: 1
+    },  
+    {
+      question: "attrice",
+      options: ["maschile", "femminile"],
+      answer: 1
+    },
+      {
+      question: "città",
+      options: ["maschile", "femminile"],
+      answer: 1
+    },
+      {
+      question: "chiave",
+      options: ["maschile", "femminile"],
+      answer: 1
+    },
+      {
+      question: "giornale",
+      options: ["maschile", "femminile"],
+      answer: 0
+    },
+         {
+      question: "gamba",
+      options: ["maschile", "femminile"],
+      answer: 1
+    },
+         {
+      question: "direttore",
+      options: ["maschile", "femminile"],
+      answer: 0
+    },
+         {
+      question: "radio",
+      options: ["maschile", "femminile"],
+      answer: 1
+    },
+         {
+      question: "caffè",
+      options: ["maschile", "femminile"],
+      answer: 0
+    },
+  
+
+  ];
+
+  // State Variables
+  let currentQuestion = 0;
+  let score = 0;
+  let attempts = 0;
+  let missedFirstTry = false;
+
+  // DOM Elements
+  const questionEl = document.getElementById("question");
+  const optionsEl = document.getElementById("options");
+  const nextBtn = document.getElementById("next-btn");
+  const quizEl = document.getElementById("quiz");
+  const resultContainer = document.getElementById("result-container");
+  const scoreText = document.getElementById("score-text");
+  const feedbackMsg = document.getElementById("feedback-msg");
+  const instructionsBox = document.querySelector(".instructions-box");
+
+  function loadQuestion() {
+    attempts = 0;
+    missedFirstTry = false;
+    nextBtn.style.display = "none";
+    if (feedbackMsg) feedbackMsg.style.display = "none";
+
+    const current = quizData[currentQuestion];
+    questionEl.innerHTML = current.question;
+    optionsEl.innerHTML = "";
+
+    current.options.forEach((opt, index) => {
+      const button = document.createElement("button");
+      button.innerHTML = opt;
+      button.classList.add("option-btn");
+      button.addEventListener("click", () => selectOption(index, button));
+      optionsEl.appendChild(button);
+    });
+  }
+
+  function selectOption(selectedIndex, selectedBtn) {
+    attempts++;
+    const correctIndex = quizData[currentQuestion].answer;
+    const isCorrect = selectedIndex === correctIndex;
+    const buttons = optionsEl.querySelectorAll(".option-btn");
+
+    if (isCorrect) {
+      if (!missedFirstTry) {
+        score++;
+      }
+
+      selectedBtn.classList.add("correct");
+      buttons.forEach(btn => btn.disabled = true);
+      if (feedbackMsg) feedbackMsg.style.display = "none";
+
+      setTimeout(() => {
+        handleNextStep();
+      }, 800);
+
+    } else {
+      selectedBtn.classList.add("incorrect");
+      selectedBtn.disabled = true;
+
+      if (attempts === 1) {
+        missedFirstTry = true;
+        if (feedbackMsg) {
+          feedbackMsg.textContent = "Sbagliato! Riprova.";
+          feedbackMsg.style.display = "block";
+        }
+      } else {
+        if (feedbackMsg) feedbackMsg.style.display = "none";
+        buttons.forEach((btn, idx) => {
+          btn.disabled = true;
+          if (idx === correctIndex) btn.classList.add("correct");
+        });
+
+        if (currentQuestion < quizData.length - 1) {
+          nextBtn.style.display = "block";
+        } else {
+          setTimeout(showResults, 1500);
+        }
+      }
+    }
+  }
+
+  function handleNextStep() {
+    if (currentQuestion < quizData.length - 1) {
+      currentQuestion++;
+      loadQuestion();
+    } else {
+      showResults();
+    }
+  }
+
+  nextBtn.addEventListener("click", handleNextStep);
+
+function showResults() {
+    quizEl.style.display = "none";
+    if (instructionsBox) instructionsBox.style.display = "none"; // Hides instructions
+    resultContainer.style.display = "block";
+    
+    const percentage = Math.round((score / quizData.length) * 100);
+    scoreText.textContent = `Punteggio finale: ${score} su ${quizData.length} (${percentage}%)`;
+  }
+
+  // Initialize the quiz
+  loadQuestion();
+</script>
+
+<script>
+  function sendHeight() {
+    const height = document.body.scrollHeight;
+    window.parent.postMessage({ quizHeight: height }, '*');
+  }
+
+  window.addEventListener('load', sendHeight);
+  window.addEventListener('resize', sendHeight);
+
+  const observer = new MutationObserver(sendHeight);
+  observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+</script>
+</body>
+</html>
