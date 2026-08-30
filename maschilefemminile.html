@@ -35,27 +35,27 @@
       options: ["maschile", "femminile"],
       answer: 1
     },
-      {
+    {
       question: "orologio",
       options: ["maschile", "femminile"],
       answer: 0
     },
-      {
+    {
       question: "spazzolino",
       options: ["maschile", "femminile"],
       answer: 0
     },
-      {
+    {
       question: "alba",
       options: ["maschile", "femminile"],
       answer: 1
     },
-      {
+    {
       question: "albero",
       options: ["maschile", "femminile"],
       answer: 0
     },
-      {
+    {
       question: "televisione",
       options: ["maschile", "femminile"],
       answer: 1
@@ -65,43 +65,41 @@
       options: ["maschile", "femminile"],
       answer: 1
     },
-      {
+    {
       question: "città",
       options: ["maschile", "femminile"],
       answer: 1
     },
-      {
+    {
       question: "chiave",
       options: ["maschile", "femminile"],
       answer: 1
     },
-      {
+    {
       question: "giornale",
       options: ["maschile", "femminile"],
       answer: 0
     },
-         {
+    {
       question: "gamba",
       options: ["maschile", "femminile"],
       answer: 1
     },
-         {
+    {
       question: "direttore",
       options: ["maschile", "femminile"],
       answer: 0
     },
-         {
+    {
       question: "radio",
       options: ["maschile", "femminile"],
       answer: 1
     },
-         {
+    {
       question: "caffè",
       options: ["maschile", "femminile"],
       answer: 0
-    },
-  
-
+    }
   ];
 
   // State Variables
@@ -196,35 +194,32 @@
 
   nextBtn.addEventListener("click", handleNextStep);
 
-function showResults() {
-  quizEl.style.display = "none";
-  if (instructionsBox) instructionsBox.style.display = "none";
-  resultContainer.style.display = "block";
-  
-  const percentage = Math.round((score / quizData.length) * 100);
-  scoreText.textContent = `Punteggio finale: ${score} su ${quizData.length} (${percentage}%)`;
+  function showResults() {
+    quizEl.style.display = "none";
+    if (instructionsBox) instructionsBox.style.display = "none";
+    resultContainer.style.display = "block";
+    
+    const percentage = Math.round((score / quizData.length) * 100);
+    scoreText.textContent = `Punteggio finale: ${score} su ${quizData.length} (${percentage}%)`;
 
-  // Send data to Google Sheet silently in the background
-  if (GOOGLE_SCRIPT_URL) {
-    fetch(GOOGLE_SCRIPT_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        quizTitle: "Maschile o Femminile?",
-        score: score,
-        total: quizData.length,
-        percentage: percentage
-      })
-    }).catch(err => console.error("Error logging score:", err));
+    if (GOOGLE_SCRIPT_URL) {
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          quizTitle: "Maschile o Femminile?",
+          score: score,
+          total: quizData.length,
+          percentage: percentage
+        })
+      }).catch(err => console.error("Error logging score:", err));
+    }
   }
-}
 
-// Initialize the quiz
-loadQuestion();
+  // Initialize the quiz
+  loadQuestion();
 </script>
-
-<script>
   function sendHeight() {
     const height = document.body.scrollHeight;
     window.parent.postMessage({ quizHeight: height }, '*');
