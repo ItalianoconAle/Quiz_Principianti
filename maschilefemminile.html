@@ -197,29 +197,31 @@
   nextBtn.addEventListener("click", handleNextStep);
 
 function showResults() {
-    quizEl.style.display = "none";
-    if (instructionsBox) instructionsBox.style.display = "none";
-    resultContainer.style.display = "block";
-    
-    const percentage = Math.round((score / quizData.length) * 100);
-    scoreText.textContent = `Punteggio finale: ${score} su ${quizData.length} (${percentage}%)`;
+  quizEl.style.display = "none";
+  if (instructionsBox) instructionsBox.style.display = "none";
+  resultContainer.style.display = "block";
+  
+  const percentage = Math.round((score / quizData.length) * 100);
+  scoreText.textContent = `Punteggio finale: ${score} su ${quizData.length} (${percentage}%)`;
 
-    // Send data to Google Sheet silently in the background
-    if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== "AKfycbziDNyPfIGomIrM9Hgg5FZ6TPd1L50Wkm3VgPyXXE4GF9dHTBkz2Lw4WQh_jo-3JLFOsQ") {
-fetch(GOOGLE_SCRIPT_URL, {
-  method: "POST",
-  mode: "no-cors",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    quizTitle: "Maschile o Femminile?",
-    score: score,
-    total: quizData.length,
-    percentage: percentage
-  })
-}).catch(err => console.error("Error logging score:", err));
+  // Send data to Google Sheet silently in the background
+  if (GOOGLE_SCRIPT_URL) {
+    fetch(GOOGLE_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        quizTitle: "Maschile o Femminile?",
+        score: score,
+        total: quizData.length,
+        percentage: percentage
+      })
+    }).catch(err => console.error("Error logging score:", err));
+  }
+}
 
-  // Initialize the quiz
-  loadQuestion();
+// Initialize the quiz
+loadQuestion();
 </script>
 
 <script>
