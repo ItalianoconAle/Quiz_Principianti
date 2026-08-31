@@ -77,11 +77,19 @@ body {
   text-align: left;
   font-weight: 500;
   transition: all 0.2s ease;
+  min-height: 48px;
+  
+  /* Prevent iOS blue tap highlight and persistent focus outlines */
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 
-.option-btn:hover:not(:disabled) {
-  border-color: #65c7c3;
-  background-color: #f4faf7;
+/* ONLY apply hover styling on mouse-driven devices (Desktops/Laptops) */
+@media (hover: hover) {
+  .option-btn:hover:not(:disabled) {
+    border-color: #65c7c3;
+    background-color: #f4faf7;
+  }
 }
 
 /* Selection Feedback */
