@@ -132,14 +132,14 @@ body {
 }
 
 .feedback-msg.correct {
-  color: #2e7d32;
-  background-color: #e8f5e9;
+  color: #2e7d32  !important;
+  background-color: #e8f5e9  !important;
   border: 1px solid #c8e6c9;
 }
 
 .feedback-msg.incorrect {
-  color: #d32f2f;
-  background-color: #fdeded;
+  color: #d32f2f  !important;
+  background-color: #fdeded  !important;
   border: 1px solid #f5c2c2;
 }
 .progress-container {
