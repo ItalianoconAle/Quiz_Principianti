@@ -115,7 +115,7 @@ If necessary, you can use an apostrophe (') to show the accento grave (‵).</p>
     answerInput.focus();
   }
 
-  function checkAnswer() {
+function checkAnswer() {
     const rawInput = answerInput.value;
     
     // Normalize user input (trim spaces and convert to lowercase)
@@ -137,6 +137,8 @@ If necessary, you can use an apostrophe (') to show the accento grave (‵).</p>
       submitBtn.style.display = "none";
       
       if (feedbackMsg) {
+        // Reset color style so it doesn't stay red from a previous failed attempt
+        feedbackMsg.style.color = "#2e7d32"; // Green for success
         feedbackMsg.textContent = "Esatto!";
         feedbackMsg.style.display = "block";
       }
@@ -149,6 +151,7 @@ If necessary, you can use an apostrophe (') to show the accento grave (‵).</p>
       if (attempts === 1) {
         missedFirstTry = true;
         if (feedbackMsg) {
+          feedbackMsg.style.color = "#d32f2f"; // Red for error
           feedbackMsg.textContent = "Sbagliato! Riprova.";
           feedbackMsg.style.display = "block";
         }
@@ -159,7 +162,8 @@ If necessary, you can use an apostrophe (') to show the accento grave (‵).</p>
         submitBtn.style.display = "none";
         
         if (feedbackMsg) {
-          // Display the primary acceptable response
+          feedbackMsg.style.color = "#d32f2f"; // Red for error
+          // Only show the answer after the second failed attempt
           feedbackMsg.textContent = `Risposta corretta: ${quizData[currentQuestion].answer[0]}`;
           feedbackMsg.style.display = "block";
         }
