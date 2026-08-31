@@ -83,12 +83,11 @@
       options: ["Quell'", "Quello", "Quel", "Quelli"],
       answer: 1
     },
-      {
+    {
       question: "_________  torte sono buone.",
       options: ["Quei", "Quegli", "Quelle", "Quelli"],
       answer: 2
     }
-
   ];
 
   // State Variables
@@ -108,6 +107,11 @@
   const instructionsBox = document.querySelector(".instructions-box");
   const progressBar = document.getElementById("progress-bar");
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbziDNyPfIGomIrM9Hgg5FZ6TPd1L50Wkm3VgPyXXE4GF9dHTBkz2Lw4WQh_jo-3JLFOsQ/exec";
+
+  function sendHeight() {
+    const height = document.body.scrollHeight;
+    window.parent.postMessage({ quizHeight: height }, '*');
+  }
 
   function updateProgressBar() {
     if (progressBar) {
@@ -135,6 +139,8 @@
       button.addEventListener("click", () => selectOption(index, button));
       optionsEl.appendChild(button);
     });
+
+    setTimeout(sendHeight, 50);
   }
 
   function selectOption(selectedIndex, selectedBtn) {
@@ -180,6 +186,7 @@
         }
       }
     }
+    setTimeout(sendHeight, 50);
   }
 
   function handleNextStep() {
@@ -202,6 +209,8 @@
     const percentage = Math.round((score / quizData.length) * 100);
     scoreText.textContent = `Punteggio finale: ${score} su ${quizData.length} (${percentage}%)`;
 
+    setTimeout(sendHeight, 50);
+
     if (GOOGLE_SCRIPT_URL) {
       fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
@@ -220,12 +229,7 @@
   // Initialize the quiz
   loadQuestion();
 
-  // iFrame Resizer Communication
-  function sendHeight() {
-    const height = document.body.scrollHeight;
-    window.parent.postMessage({ quizHeight: height }, '*');
-  }
-
+  // iFrame Resizer Communication Listeners
   window.addEventListener('load', sendHeight);
   window.addEventListener('resize', sendHeight);
 
