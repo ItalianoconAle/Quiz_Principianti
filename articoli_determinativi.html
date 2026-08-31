@@ -161,6 +161,10 @@
   }
 
   function loadQuestion() {
+    // Drop browser focus from the previously clicked button
+    if (document.activeElement) {
+      document.activeElement.blur();
+    }
     attempts = 0;
     missedFirstTry = false;
     nextBtn.style.display = "none";
