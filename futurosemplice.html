@@ -23,7 +23,7 @@ If necessary, you can use an apostrophe (') to show the accento grave (‵).</p>
     
     <div id="input-container" class="input-container" style="margin: 20px 0;">
       <input type="text" id="user-answer" class="text-input" placeholder="Scrivi qui..." autocomplete="off">
-      <button id="submit-btn" class="btn"style="background-color: #65c7c3; color: #fff;">Invia</button>
+      <button id="submit-btn" class="btn" style="background-color: #65c7c3; color: #fff;">Invia</button>
     </div>
 
     <div id="feedback-msg" class="feedback-msg" style="display: none;"></div>
@@ -92,6 +92,11 @@ If necessary, you can use an apostrophe (') to show the accento grave (‵).</p>
   const progressBar = document.getElementById("progress-bar");
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbziDNyPfIGomIrM9Hgg5FZ6TPd1L50Wkm3VgPyXXE4GF9dHTBkz2Lw4WQh_jo-3JLFOsQ/exec";
 
+  function sendHeight() {
+    const height = document.body.scrollHeight;
+    window.parent.postMessage({ quizHeight: height }, '*');
+  }
+
   function updateProgressBar() {
     if (progressBar) {
       const progressPercent = (currentQuestion / quizData.length) * 100;
@@ -99,7 +104,7 @@ If necessary, you can use an apostrophe (') to show the accento grave (‵).</p>
     }
   }
 
-function loadQuestion() {
+  function loadQuestion() {
     attempts = 0;
     missedFirstTry = false;
     nextBtn.style.display = "none";
@@ -116,6 +121,8 @@ function loadQuestion() {
     const current = quizData[currentQuestion];
     questionEl.innerHTML = current.question;
     answerInput.focus();
+
+    setTimeout(sendHeight, 50);
   }
 
   function checkAnswer() {
@@ -170,6 +177,7 @@ function loadQuestion() {
         }
       }
     }
+    setTimeout(sendHeight, 50);
   }
 
   submitBtn.addEventListener("click", checkAnswer);
@@ -201,6 +209,8 @@ function loadQuestion() {
     const percentage = Math.round((score / quizData.length) * 100);
     scoreText.textContent = `Punteggio finale: ${score} su ${quizData.length} (${percentage}%)`;
 
+    setTimeout(sendHeight, 50);
+
     if (GOOGLE_SCRIPT_URL) {
       fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
@@ -219,12 +229,7 @@ function loadQuestion() {
   // Initialize
   loadQuestion();
 
-  // iFrame Resizer Communication
-  function sendHeight() {
-    const height = document.body.scrollHeight;
-    window.parent.postMessage({ quizHeight: height }, '*');
-  }
-
+  // iFrame Resizer Communication Listeners
   window.addEventListener('load', sendHeight);
   window.addEventListener('resize', sendHeight);
 
