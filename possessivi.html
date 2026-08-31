@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Possessivi</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="quiz-container">
+  <div class="instructions-box">
+    <h3>Possessivi</h3>
+    <p>Complete the following with the correct Possessive Adjective.</p>
+  </div>
+
+  <div id="quiz">
+    <div class="progress-container">
+      <div id="progress-bar" class="progress-bar"></div>
+    </div>
+    <div id="question" class="question">Caricamento...</div>
+    <div id="feedback-msg" class="feedback-msg" style="display: none;"></div>
+    <div id="options" class="options-container"></div>
+    <button id="next-btn" class="btn" style="display: none;">Prossima domanda</button>
+  </div>
+
+  <div id="result-container" style="display: none;">
+    <h2>Quiz Completato!</h2>
+    <p id="score-text"></p>
+    <button onclick="location.reload()" class="btn">Riprova</button>
+  </div>
+</div>
+
+<script>
+  const quizData = [
+    {
+      question: "La bambina gioca con _____________ bambole.",
+      options: ["il suo", "la sua", "le sue", "i suoi"],
+      answer: 2
+    },
+    {
+      question: "Gli sposi hanno festeggiato ______________ matrimonio in un castello.",
+      options: ["il loro", "la loro", "la sua", "il suo"],
+      answer: 0
+    },
+    {
+      question: "Marco va in treno perché ____________ scuola è lontana.",
+      options: ["il suo", "la sua", "i suoi", "le sue"],
+      answer: 1
+    },
+    {
+      question: "Avete consegnato _____________ compiti?",
+      options: ["il vosto", "la vostra", "le vostre", "i vostri"],
+      answer: 3
+    },
+    {
+      question: "Ho preparato _______________ piatto preferito.",
+      options: ["il tuo", "la tua", "i tuoi", "le tue"],
+      answer: 0
+    },
+    {
+      question: "Abbiamo incontrato _______________ amici al bar.",
+      options: ["le nostre", "la nostra", "i nostri", "gli nostri"],
+      answer: 2
+    },
+    {
+      question: "Ho perso __________ portafoglio.",
+      options: ["la mia", "il mio", "i miei", "le mie"],
+      answer: 1
+    }
+  ];
+
+  // State Variables
+  let currentQuestion = 0;
+  let score = 0;
+  let attempts = 0;
+  let missedFirstTry = false;
+
+  // DOM Elements
+  const questionEl = document.getElementById("question");
+  const optionsEl = document.getElementById("options");
+  const nextBtn = document.getElementById("next-btn");
+  const quizEl = document.getElementById("quiz");
+  const resultContainer = document.getElementById("result-container");
+  const scoreText = document.getElementById("score-text");
+  const feedbackMsg = document.getElementById("feedback-msg");
+  const instructionsBox = document.querySelector(".instructions-box");
+  const progressBar = document.getElementById("progress-bar");
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbziDNyPfIGomIrM9Hgg5FZ6TPd1L50Wkm3VgPyXXE4GF9dHTBkz2Lw4WQh_jo-3JLFOsQ/exec";
+
+  function updateProgressBar() {
+    if (progressBar) {
+      const progressPercent = (currentQuestion / quizData.length) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+    }
+  }
+
+  function loadQuestion() {
+    attempts = 0;
+    missedFirstTry = false;
+    nextBtn.style.display = "none";
+    if (feedbackMsg) feedbackMsg.style.display = "none";
+
+    updateProgressBar();
+
+    const current = quizData[currentQuestion];
+    questionEl.innerHTML = current.question;
+    optionsEl.innerHTML = "";
+
+    current.options.forEach((opt, index) => {
+      const button = document.createElement("button");
+      button.innerHTML = opt;
+      button.classList.add("option-btn");
+      button.addEventListener("click", () => selectOption(index, button));
+      optionsEl.appendChild(button);
+    });
+  }
+
+  function selectOption(selectedIndex, selectedBtn) {
+    attempts++;
+    const correctIndex = quizData[currentQuestion].answer;
+    const isCorrect = selectedIndex === correctIndex;
+    const buttons = optionsEl.querySelectorAll(".option-btn");
+
+    if (isCorrect) {
+      if (!missedFirstTry) {
+        score++;
+      }
+
+      selectedBtn.classList.add("correct");
+      buttons.forEach(btn => btn.disabled = true);
+      if (feedbackMsg) feedbackMsg.style.display = "none";
+
+      setTimeout(() => {
+        handleNextStep();
+      }, 800);
+
+    } else {
+      selectedBtn.classList.add("incorrect");
+      selectedBtn.disabled = true;
+
+      if (attempts === 1) {
+        missedFirstTry = true;
+        if (feedbackMsg) {
+          feedbackMsg.textContent = "Sbagliato! Riprova.";
+          feedbackMsg.style.display = "block";
+        }
+      } else {
+        if (feedbackMsg) feedbackMsg.style.display = "none";
+        buttons.forEach((btn, idx) => {
+          btn.disabled = true;
+          if (idx === correctIndex) btn.classList.add("correct");
+        });
+
+        if (currentQuestion < quizData.length - 1) {
+          nextBtn.style.display = "block";
+        } else {
+          setTimeout(showResults, 1500);
+        }
+      }
+    }
+  }
+
+  function handleNextStep() {
+    if (currentQuestion < quizData.length - 1) {
+      currentQuestion++;
+      loadQuestion();
+    } else {
+      showResults();
+    }
+  }
+
+  nextBtn.addEventListener("click", handleNextStep);
+
+  function showResults() {
+    if (progressBar) progressBar.style.width = "100%";
+    quizEl.style.display = "none";
+    if (instructionsBox) instructionsBox.style.display = "none";
+    resultContainer.style.display = "block";
+
+    const percentage = Math.round((score / quizData.length) * 100);
+    scoreText.textContent = `Punteggio finale: ${score} su ${quizData.length} (${percentage}%)`;
+
+    if (GOOGLE_SCRIPT_URL) {
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          quizTitle: "Possessivi",
+          score: score,
+          total: quizData.length,
+          percentage: percentage
+        })
+      }).catch(err => console.error("Error logging score:", err));
+    }
+  }
+
+  // Initialize the quiz
+  loadQuestion();
+
+  // iFrame Resizer Communication
+  function sendHeight() {
+    const height = document.body.scrollHeight;
+    window.parent.postMessage({ quizHeight: height }, '*');
+  }
+
+  window.addEventListener('load', sendHeight);
+  window.addEventListener('resize', sendHeight);
+
+  const observer = new MutationObserver(sendHeight);
+  observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+</script>
+
+</body>
+</html>
