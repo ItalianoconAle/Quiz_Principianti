@@ -108,27 +108,27 @@
       options: ["il", "la", "lo", "l'"],
       answer: 2
     },
-       {
+    {
       question: "psicologi",
       options: ["i", "le", "gli", "li"],
       answer: 2
     },
-       {
+    {
       question: "macchine",
       options: ["il", "le", "gli", "i"],
       answer: 1
     },
-       {
+    {
       question: "autisti",
       options: ["gli", "i", "le", "il"],
       answer: 0
     },
-       {
+    {
       question: "paesi",
       options: ["gli", "le", "i", "lo"],
       answer: 2
     },
-       {
+    {
       question: "stazioni",
       options: ["la", "gli", "i", "le"],
       answer: 3
@@ -183,6 +183,8 @@
       button.addEventListener("click", () => selectOption(index, button));
       optionsEl.appendChild(button);
     });
+
+    sendHeight();
   }
 
   function selectOption(selectedIndex, selectedBtn) {
@@ -213,6 +215,7 @@
         if (feedbackMsg) {
           feedbackMsg.textContent = "Sbagliato! Riprova.";
           feedbackMsg.style.display = "block";
+          sendHeight();
         }
       } else {
         if (feedbackMsg) feedbackMsg.style.display = "none";
@@ -223,6 +226,7 @@
 
         if (currentQuestion < quizData.length - 1) {
           nextBtn.style.display = "block";
+          sendHeight();
         } else {
           setTimeout(showResults, 1500);
         }
@@ -250,6 +254,8 @@
     const percentage = Math.round((score / quizData.length) * 100);
     scoreText.textContent = `Punteggio finale: ${score} su ${quizData.length} (${percentage}%)`;
 
+    sendHeight();
+
     if (GOOGLE_SCRIPT_URL) {
       fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
@@ -270,7 +276,15 @@
 
   // iFrame Resizer Communication
   function sendHeight() {
-    const height = document.body.scrollHeight;
+    const body = document.body;
+    const html = document.documentElement;
+    const height = Math.max(
+      body.scrollHeight,
+      body.offsetHeight,
+      html.clientHeight,
+      html.scrollHeight,
+      html.offsetHeight
+    );
     window.parent.postMessage({ quizHeight: height }, '*');
   }
 
@@ -278,7 +292,12 @@
   window.addEventListener('resize', sendHeight);
 
   const observer = new MutationObserver(sendHeight);
-  observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+  observer.observe(document.body, { 
+    childList: true, 
+    subtree: true, 
+    attributes: true, 
+    attributeFilter: ['style', 'class'] 
+  });
 </script>
 
 </body>
