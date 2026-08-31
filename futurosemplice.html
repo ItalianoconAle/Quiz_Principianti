@@ -99,14 +99,17 @@ If necessary, you can use an apostrophe (') to show the accento grave (‵).</p>
     }
   }
 
-  function loadQuestion() {
+function loadQuestion() {
     attempts = 0;
     missedFirstTry = false;
     nextBtn.style.display = "none";
     submitBtn.style.display = "inline-block";
     answerInput.disabled = false;
     answerInput.value = "";
-    if (feedbackMsg) feedbackMsg.style.display = "none";
+    if (feedbackMsg) {
+      feedbackMsg.style.display = "none";
+      feedbackMsg.className = "feedback-msg"; // Resets classes back to baseline
+    }
 
     updateProgressBar();
 
@@ -115,16 +118,10 @@ If necessary, you can use an apostrophe (') to show the accento grave (‵).</p>
     answerInput.focus();
   }
 
-function checkAnswer() {
+  function checkAnswer() {
     const rawInput = answerInput.value;
-    
-    // Normalize user input (trim spaces and convert to lowercase)
     const cleanedInput = rawInput.trim().toLowerCase();
-    
-    // Get array of acceptable answers and normalize each item
     const acceptableAnswers = quizData[currentQuestion].answer.map(ans => ans.trim().toLowerCase());
-
-    // Check if user input matches ANY acceptable option
     const isCorrect = acceptableAnswers.includes(cleanedInput);
 
     attempts++;
@@ -137,8 +134,7 @@ function checkAnswer() {
       submitBtn.style.display = "none";
       
       if (feedbackMsg) {
-        // Reset color style so it doesn't stay red from a previous failed attempt
-        feedbackMsg.style.color = "#2e7d32"; // Green for success
+        feedbackMsg.className = "feedback-msg correct"; // Adds .correct class
         feedbackMsg.textContent = "Esatto!";
         feedbackMsg.style.display = "block";
       }
@@ -151,7 +147,7 @@ function checkAnswer() {
       if (attempts === 1) {
         missedFirstTry = true;
         if (feedbackMsg) {
-          feedbackMsg.style.color = "#d32f2f"; // Red for error
+          feedbackMsg.className = "feedback-msg incorrect"; // Adds .incorrect class
           feedbackMsg.textContent = "Sbagliato! Riprova.";
           feedbackMsg.style.display = "block";
         }
@@ -162,8 +158,7 @@ function checkAnswer() {
         submitBtn.style.display = "none";
         
         if (feedbackMsg) {
-          feedbackMsg.style.color = "#d32f2f"; // Red for error
-          // Only show the answer after the second failed attempt
+          feedbackMsg.className = "feedback-msg incorrect"; // Adds .incorrect class
           feedbackMsg.textContent = `Risposta corretta: ${quizData[currentQuestion].answer[0]}`;
           feedbackMsg.style.display = "block";
         }
