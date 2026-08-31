@@ -27,21 +27,6 @@ body {
   box-sizing: border-box;
   border: 1px solid #eaeaea;
 }
-/* Shared Feedback Message States */
-.feedback-msg {
-  margin-top: 15px;
-  font-size: 1.1rem;
-  font-weight: bold;
-}
-
-.feedback-msg.correct {
-  color: #2e7d32; /* Clear, high-contrast green */
-}
-
-.feedback-msg.incorrect {
-  color: #d32f2f; /* Standard warning red */
-}
-/* Instructions Banner */
 .instructions-box {
   background-color: #f8faf9;
   border-left: 4px solid #65c7c3;
@@ -138,14 +123,24 @@ body {
 }
 
 .feedback-msg {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 16px;
+  display: none; 
+}
+
+.feedback-msg.correct {
+  color: #2e7d32;
+  background-color: #e8f5e9;
+  border: 1px solid #c8e6c9;
+}
+
+.feedback-msg.incorrect {
   color: #d32f2f;
   background-color: #fdeded;
   border: 1px solid #f5c2c2;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 16px;
 }
 .progress-container {
       width: 100%;
