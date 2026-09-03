@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Imperfetto Indicativo</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="quiz-container">
+  <div class="instructions-box">
+    <h3>Imperfetto Indicativo</h3>
+    <p>Complete the following sentences using the imperfetto of the indicated verbs.</p>
+  </div>
+
+  <div id="quiz">
+    <div class="progress-container">
+      <div id="progress-bar" class="progress-bar"></div>
+    </div>
+    <div id="question" class="question">Caricamento...</div>
+    
+    <div id="input-container" class="input-container" style="margin: 20px 0;">
+      <input type="text" id="user-answer" class="text-input" placeholder="Scrivi qui..." autocomplete="off">
+      <button id="submit-btn" class="btn" style="background-color: #65c7c3; color: #fff;">Invia</button>
+    </div>
+
+    <div id="feedback-msg" class="feedback-msg" style="display: none;"></div>
+    <button id="next-btn" class="btn" style="display: none; margin-top: 15px;">Prossima domanda</button>
+  </div>
+
+  <div id="result-container" style="display: none;">
+    <h2>Quiz Completato!</h2>
+    <p id="score-text"></p>
+    <button onclick="location.reload()" class="btn">Riprova</button>
+  </div>
+</div>
+
+<script>
+  const quizData = [
+    {
+      question: "(mangiare) Mentre noi  ______________ qualcuno ha bussato alla porta.    ",
+      answer: ["mangiavamo"]
+    },
+    {
+      question: "(frequentare) Da bambina io __________________ una scuola per ragazze. ",
+      answer: ["frequentavo"]
+    },
+    {
+      question: "(dormire) Ernesto _________________ serenamente ogni notte.",
+      answer: ["dormiva"]
+    },
+    {
+      question: "(guardare) Mentre Giulia e Gino ____________________ la TV, è andata via la corrente.",
+      answer: ["guardavano"]
+    },
+    {
+      question: "(andare) Mi ricordo che durante le vacanze estive (voi) __________________ sempre in Francia.",
+      answer: ["andavate"]
+    },
+    {
+      question: "(parlare) Ho sentito la tristezza nella tua voce mentre (tu) __________________ di lui.",
+      answer: ["parlavi"]
+    },
+    {
+      question: "(essere) È proprio un mondo diverso rispetto a quando (io)  ______________ giovane",
+      answer: ["ero"]
+    },
+    {
+      question: "(dire) Mio nonno mi _______________ sempre che le parole gentili non si dimenticano mai.    ",
+      answer: ["diceva"]
+    }
+  ];
+
+  // State Variables
+  let currentQuestion = 0;
+  let score = 0;
+  let attempts = 0;
+  let missedFirstTry = false;
+
+  // DOM Elements
+  const questionEl = document.getElementById("question");
+  const answerInput = document.getElementById("user-answer");
+  const submitBtn = document.getElementById("submit-btn");
+  const nextBtn = document.getElementById("next-btn");
+  const quizEl = document.getElementById("quiz");
+  const resultContainer = document.getElementById("result-container");
+  const scoreText = document.getElementById("score-text");
+  const feedbackMsg = document.getElementById("feedback-msg");
+  const instructionsBox = document.querySelector(".instructions-box");
+  const progressBar = document.getElementById("progress-bar");
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbziDNyPfIGomIrM9Hgg5FZ6TPd1L50Wkm3VgPyXXE4GF9dHTBkz2Lw4WQh_jo-3JLFOsQ/exec";
+
+  function sendHeight() {
+    const height = document.body.scrollHeight;
+    window.parent.postMessage({ quizHeight: height }, '*');
+  }
+
+  function updateProgressBar() {
+    if (progressBar) {
+      const progressPercent = (currentQuestion / quizData.length) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+    }
+  }
+
+  function loadQuestion() {
+    attempts = 0;
+    missedFirstTry = false;
+    nextBtn.style.display = "none";
+    submitBtn.style.display = "inline-block";
+    answerInput.disabled = false;
+    answerInput.value = "";
+    if (feedbackMsg) {
+      feedbackMsg.style.display = "none";
+      feedbackMsg.className = "feedback-msg"; // Resets classes back to baseline
+    }
+
+    updateProgressBar();
+
+    const current = quizData[currentQuestion];
+    questionEl.innerHTML = current.question;
+    answerInput.focus();
+
+    setTimeout(sendHeight, 50);
+  }
+
+  function checkAnswer() {
+    const rawInput = answerInput.value;
+    const cleanedInput = rawInput.trim().toLowerCase();
+    const acceptableAnswers = quizData[currentQuestion].answer.map(ans => ans.trim().toLowerCase());
+    const isCorrect = acceptableAnswers.includes(cleanedInput);
+
+    attempts++;
+
+    if (isCorrect) {
+      if (!missedFirstTry) {
+        score++;
+      }
+      answerInput.disabled = true;
+      submitBtn.style.display = "none";
+      
+      if (feedbackMsg) {
+        feedbackMsg.className = "feedback-msg correct"; // Adds .correct class
+        feedbackMsg.textContent = "Esatto!";
+        feedbackMsg.style.display = "block";
+      }
+
+      setTimeout(() => {
+        handleNextStep();
+      }, 800);
+
+    } else {
+      if (attempts === 1) {
+        missedFirstTry = true;
+        if (feedbackMsg) {
+          feedbackMsg.className = "feedback-msg incorrect"; // Adds .incorrect class
+          feedbackMsg.textContent = "Sbagliato! Riprova.";
+          feedbackMsg.style.display = "block";
+        }
+        answerInput.value = "";
+        answerInput.focus();
+      } else {
+        answerInput.disabled = true;
+        submitBtn.style.display = "none";
+        
+        if (feedbackMsg) {
+          feedbackMsg.className = "feedback-msg incorrect"; // Adds .incorrect class
+          feedbackMsg.textContent = `Risposta corretta: ${quizData[currentQuestion].answer[0]}`;
+          feedbackMsg.style.display = "block";
+        }
+
+        if (currentQuestion < quizData.length - 1) {
+          nextBtn.style.display = "block";
+        } else {
+          setTimeout(showResults, 1800);
+        }
+      }
+    }
+    setTimeout(sendHeight, 50);
+  }
+
+  submitBtn.addEventListener("click", checkAnswer);
+
+  // Allow pressing "Enter" in the text box to submit
+  answerInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter" && !answerInput.disabled) {
+      checkAnswer();
+    }
+  });
+
+  function handleNextStep() {
+    if (currentQuestion < quizData.length - 1) {
+      currentQuestion++;
+      loadQuestion();
+    } else {
+      showResults();
+    }
+  }
+
+  nextBtn.addEventListener("click", handleNextStep);
+
+  function showResults() {
+    if (progressBar) progressBar.style.width = "100%";
+    quizEl.style.display = "none";
+    if (instructionsBox) instructionsBox.style.display = "none";
+    resultContainer.style.display = "block";
+
+    const percentage = Math.round((score / quizData.length) * 100);
+    scoreText.textContent = `Punteggio finale: ${score} su ${quizData.length} (${percentage}%)`;
+
+    setTimeout(sendHeight, 50);
+
+    if (GOOGLE_SCRIPT_URL) {
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          quizTitle: "Imperfetto",
+          score: score,
+          total: quizData.length,
+          percentage: percentage
+        })
+      }).catch(err => console.error("Error logging score:", err));
+    }
+  }
+
+  // Initialize
+  loadQuestion();
+
+  // iFrame Resizer Communication Listeners
+  window.addEventListener('load', sendHeight);
+  window.addEventListener('resize', sendHeight);
+
+  const observer = new MutationObserver(sendHeight);
+  observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+</script>
+
+</body>
+</html>
